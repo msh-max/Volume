@@ -1,0 +1,972 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Volume</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Daily volume log for your main goals. Every day is an opportunity.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Volume">
+<meta name="theme-color" content="#f9f9f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0d0d0d" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7;
+    --surface: #fcfcfb;
+    --surface-2: #f0efec;
+    --ink: #0b0b0b;
+    --ink-2: #52514e;
+    --muted: #898781;
+    --grid: #e1e0d9;
+    --axis: #c3c2b7;
+    --border: rgba(11,11,11,0.10);
+    --good: #006300;
+    --bad: #d03b3b;
+    --accent: #2a78d6;
+    --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #eda100;
+    --s5: #e87ba4; --s6: #008300; --s7: #6250d6; --s8: #e34948;
+    --heat0: #f0efec; --heat1: #cde2fb; --heat2: #9ec5f4; --heat3: #5598e7; --heat4: #2a78d6; --heat5: #1c5cab; --heat6: #0d366b;
+    --shadow: 0 1px 2px rgba(0,0,0,0.05), 0 4px 16px rgba(0,0,0,0.04);
+    --radius: 18px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --page: #0d0d0d;
+      --surface: #1a1a19;
+      --surface-2: #262625;
+      --ink: #f0efec;
+      --ink-2: #c3c2b7;
+      --muted: #898781;
+      --grid: #2c2c2a;
+      --axis: #383835;
+      --border: rgba(255,255,255,0.10);
+      --good: #0ca30c;
+      --bad: #e66767;
+      --accent: #3987e5;
+      --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+      --s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #e66767;
+      --heat0: #262625; --heat1: #104281; --heat2: #184f95; --heat3: #256abf; --heat4: #3987e5; --heat5: #6da7ec; --heat6: #9ec5f4;
+      --shadow: none;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #0d0d0d; --surface: #1a1a19; --surface-2: #262625;
+    --ink: #f0efec; --ink-2: #c3c2b7; --muted: #898781;
+    --grid: #2c2c2a; --axis: #383835; --border: rgba(255,255,255,0.10);
+    --good: #0ca30c; --bad: #e66767; --accent: #3987e5;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500;
+    --s5: #d55181; --s6: #008300; --s7: #9085e9; --s8: #e66767;
+    --heat0: #262625; --heat1: #104281; --heat2: #184f95; --heat3: #256abf; --heat4: #3987e5; --heat5: #6da7ec; --heat6: #9ec5f4;
+    --shadow: none;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; background: var(--page); color: var(--ink); }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px; line-height: 1.4;
+    padding: calc(env(safe-area-inset-top) + 12px) 16px calc(env(safe-area-inset-bottom) + 40px);
+    -webkit-font-smoothing: antialiased;
+    touch-action: manipulation;
+    overscroll-behavior-y: contain;
+    -webkit-user-select: none; user-select: none;
+  }
+  main { max-width: 560px; margin: 0 auto; }
+  button { font: inherit; color: inherit; cursor: pointer; touch-action: manipulation; }
+  input, select { font: inherit; color: var(--ink); }
+  h1, h2, h3 { margin: 0; font-weight: 600; letter-spacing: -0.01em; }
+  h2 { font-size: 15px; color: var(--ink-2); text-transform: none; }
+  .sub { color: var(--muted); font-size: 13px; }
+
+  /* Header */
+  header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 6px 2px 14px; }
+  header .date { font-size: 13px; color: var(--muted); font-weight: 500; }
+  header .hero { display: flex; align-items: baseline; gap: 8px; margin-top: 2px; }
+  header .hero .num { font-size: 52px; font-weight: 650; line-height: 1; letter-spacing: -0.03em; }
+  header .hero .lbl { font-size: 15px; color: var(--ink-2); }
+  .iconbtn {
+    width: 40px; height: 40px; border-radius: 50%; border: 1px solid var(--border);
+    background: var(--surface); display: grid; place-items: center; flex: none;
+    box-shadow: var(--shadow);
+  }
+  .iconbtn svg { width: 20px; height: 20px; stroke: var(--ink-2); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* Sync pill */
+  .sync { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); margin-top: 6px; min-height: 18px; }
+  .sync .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+  .sync.ok .dot { background: var(--good); }
+  .sync.busy .dot { background: var(--accent); animation: pulse 1s infinite; }
+  .sync.err .dot { background: var(--bad); }
+  .sync.off .dot { background: var(--s4); }
+  @keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: .3 } }
+
+  /* Goal cards */
+  .goals { display: grid; gap: 10px; }
+  .goal {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 14px 14px 14px 16px; box-shadow: var(--shadow);
+    display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 10px;
+    position: relative; overflow: hidden;
+  }
+  .goal::before { content: ""; position: absolute; left: 0; top: 14px; bottom: 14px; width: 4px; border-radius: 0 3px 3px 0; background: var(--gc); }
+  .goal .info { min-width: 0; }
+  .goal .name { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 16px; }
+  .goal .name .ic { font-size: 18px; }
+  .goal .today { display: flex; align-items: baseline; gap: 8px; margin-top: 4px; }
+  .goal .today .n { font-size: 40px; font-weight: 650; line-height: 1; letter-spacing: -0.03em; }
+  .goal .today .u { color: var(--muted); font-size: 13px; }
+  .goal .meta { display: flex; gap: 12px; margin-top: 8px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
+  .goal .meta b { color: var(--ink-2); font-weight: 600; }
+  .goal .week { display: flex; gap: 3px; margin-top: 10px; align-items: flex-end; height: 22px; }
+  .goal .week i { flex: 1; max-width: 18px; display: block; border-radius: 2px 2px 0 0; background: var(--gc); opacity: .9; min-height: 2px; }
+  .goal .week i.zero { background: var(--surface-2); opacity: 1; }
+  .goal .week i.today { outline: 2px solid var(--ink); outline-offset: 1px; }
+  .goal .ctrl { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .plus {
+    width: 64px; height: 64px; border-radius: 50%; border: none;
+    background: var(--gc); color: #fff; display: grid; place-items: center;
+    box-shadow: 0 6px 18px color-mix(in srgb, var(--gc) 35%, transparent);
+    transition: transform .08s ease;
+  }
+  .plus.dark-text { color: #0b0b0b; }
+  .plus:active { transform: scale(.92); }
+  .plus svg { width: 30px; height: 30px; stroke: currentColor; stroke-width: 3; stroke-linecap: round; fill: none; }
+  .minus {
+    width: 34px; height: 28px; border-radius: 14px; border: 1px solid var(--border);
+    background: var(--surface-2); color: var(--ink-2); display: grid; place-items: center;
+  }
+  .minus:disabled { opacity: .35; }
+  .minus svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; fill: none; }
+  .bump { animation: bump .25s ease; }
+  @keyframes bump { 0% { transform: scale(1) } 40% { transform: scale(1.18) } 100% { transform: scale(1) } }
+
+  /* Sections */
+  section.card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 16px; margin-top: 14px; box-shadow: var(--shadow);
+  }
+  .sechead { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+  .sechead .right { font-size: 13px; color: var(--muted); }
+  .sechead .right b { color: var(--ink); font-weight: 600; }
+  .delta { font-size: 13px; font-weight: 600; }
+  .delta.up { color: var(--good); }
+  .delta.down { color: var(--bad); }
+  .delta.flat { color: var(--muted); }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 10px; font-size: 12px; color: var(--ink-2); }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+
+  svg.chart { width: 100%; height: auto; display: block; overflow: visible; }
+  svg.chart text { font-family: inherit; font-size: 11px; fill: var(--muted); }
+  svg.chart .axis { stroke: var(--axis); stroke-width: 1; }
+  svg.chart .grid { stroke: var(--grid); stroke-width: 1; }
+  svg.chart .hit { fill: transparent; }
+  svg.chart .val { fill: var(--ink-2); font-weight: 600; }
+  svg.chart .daylbl.today { fill: var(--ink); font-weight: 600; }
+
+  .tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+  .tile { background: var(--surface-2); border-radius: 12px; padding: 10px 12px; }
+  .tile .l { font-size: 11px; color: var(--muted); }
+  .tile .v { font-size: 22px; font-weight: 650; letter-spacing: -0.02em; line-height: 1.1; margin-top: 2px; }
+  .tile .d { font-size: 11px; margin-top: 2px; color: var(--muted); }
+
+  /* Heatmap */
+  .heat-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
+  .heat-scale { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--muted); margin-top: 8px; justify-content: flex-end; }
+  .heat-scale i { width: 11px; height: 11px; border-radius: 2px; display: inline-block; }
+
+  /* Streak rows */
+  .streaks { display: grid; gap: 8px; margin-top: 4px; }
+  .streak { display: grid; grid-template-columns: auto 1fr auto auto auto; gap: 10px; align-items: center; font-size: 14px; }
+  .streak .sw { width: 10px; height: 10px; border-radius: 3px; }
+  .streak .nm { font-weight: 600; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .streak .st { text-align: right; color: var(--ink-2); font-variant-numeric: tabular-nums; min-width: 56px; }
+  .streak .st small { color: var(--muted); font-size: 11px; display: block; }
+
+  /* Table */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 6px; }
+  th, td { padding: 7px 6px; text-align: right; border-bottom: 1px solid var(--grid); font-variant-numeric: tabular-nums; }
+  th { color: var(--muted); font-weight: 500; font-size: 11px; }
+  td:first-child, th:first-child { text-align: left; color: var(--ink-2); }
+  tr.today td:first-child { color: var(--ink); font-weight: 600; }
+  td.zero { color: var(--grid); }
+  .linkbtn { background: none; border: none; color: var(--accent); padding: 6px 0; font-size: 13px; font-weight: 500; }
+
+  /* Tooltip */
+  .tip {
+    position: fixed; z-index: 50; pointer-events: none; opacity: 0; transition: opacity .12s;
+    background: var(--ink); color: var(--page); border-radius: 10px; padding: 8px 10px; font-size: 12px; line-height: 1.35;
+    box-shadow: 0 6px 20px rgba(0,0,0,.25); max-width: 220px;
+  }
+  .tip.show { opacity: 1; }
+  .tip b { font-weight: 600; }
+  .tip .row { display: flex; justify-content: space-between; gap: 12px; }
+  .tip i { display: inline-block; width: 8px; height: 8px; border-radius: 2px; margin-right: 6px; }
+
+  /* Banner */
+  .banner {
+    background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--s4);
+    border-radius: 14px; padding: 12px 14px; margin-bottom: 14px; font-size: 14px; color: var(--ink-2);
+  }
+  .banner b { color: var(--ink); }
+  .banner button { margin-top: 8px; }
+  .btn {
+    border: none; border-radius: 12px; padding: 11px 16px; font-weight: 600; font-size: 15px;
+    background: var(--accent); color: #fff;
+  }
+  .btn.ghost { background: var(--surface-2); color: var(--ink); border: 1px solid var(--border); }
+  .btn.danger { background: transparent; color: var(--bad); border: 1px solid var(--border); }
+  .btn.sm { padding: 7px 12px; font-size: 13px; border-radius: 10px; }
+
+  /* Sheet (settings) */
+  .sheet-bg { position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 90; display: none; }
+  .sheet-bg.open { display: block; }
+  .sheet {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 100; max-height: 92vh; overflow-y: auto;
+    background: var(--page); border-radius: 22px 22px 0 0; padding: 14px 18px calc(env(safe-area-inset-bottom) + 24px);
+    transform: translateY(105%); transition: transform .25s ease, visibility 0s .25s; visibility: hidden; -webkit-user-select: text; user-select: text;
+  }
+  .sheet.open { transform: translateY(0); visibility: visible; transition: transform .25s ease; }
+  .sheet .grab { width: 40px; height: 5px; border-radius: 3px; background: var(--axis); margin: 0 auto 14px; }
+  .sheet h2 { font-size: 20px; color: var(--ink); margin-bottom: 4px; }
+  .sheet h3 { font-size: 14px; color: var(--ink-2); margin: 20px 0 8px; }
+  .sheet p { font-size: 14px; color: var(--ink-2); margin: 6px 0; }
+  .sheet ol { padding-left: 20px; font-size: 14px; color: var(--ink-2); margin: 6px 0; }
+  .sheet ol li { margin: 4px 0; }
+  .sheet a { color: var(--accent); }
+  .field { display: grid; gap: 6px; margin: 8px 0; }
+  .field label { font-size: 12px; color: var(--muted); }
+  .field input, .field select {
+    width: 100%; border: 1px solid var(--border); background: var(--surface); border-radius: 12px;
+    padding: 11px 12px; font-size: 15px; -webkit-user-select: text; user-select: text;
+  }
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .goal-edit { display: grid; grid-template-columns: 52px 1fr auto auto; gap: 8px; align-items: center; margin: 8px 0; }
+  .goal-edit input { border: 1px solid var(--border); background: var(--surface); border-radius: 10px; padding: 9px 10px; font-size: 15px; -webkit-user-select: text; user-select: text; width: 100%; }
+  .goal-edit input.ic { text-align: center; padding: 9px 4px; }
+  .colorpick { display: flex; gap: 6px; }
+  .swatch { width: 26px; height: 26px; border-radius: 50%; border: 2px solid transparent; }
+  .swatch.sel { border-color: var(--ink); }
+  .status { font-size: 13px; margin-top: 8px; min-height: 18px; color: var(--ink-2); }
+  .status.err { color: var(--bad); }
+  .status.ok { color: var(--good); }
+  .quote { margin: 18px 2px 4px; font-size: 13px; color: var(--muted); text-align: center; line-height: 1.5; }
+  .empty { color: var(--muted); font-size: 13px; text-align: center; padding: 18px 0; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <div class="date" id="dateLabel"></div>
+      <div class="hero"><span class="num" id="heroNum">0</span><span class="lbl">units today</span></div>
+      <div class="sync" id="sync"><span class="dot"></span><span id="syncText">Loading…</span></div>
+    </div>
+    <button class="iconbtn" id="settingsBtn" aria-label="Settings">
+      <svg viewBox="0 0 24 24"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+    </button>
+  </header>
+
+  <div id="banner"></div>
+
+  <div class="goals" id="goals"></div>
+
+  <section class="card">
+    <div class="sechead">
+      <div><h2>This week</h2><div class="sub" id="weekRange"></div></div>
+      <div class="right"><b id="weekTotal">0</b> units <span class="delta" id="weekDelta"></span></div>
+    </div>
+    <div id="weekChart"></div>
+    <div class="legend" id="legend"></div>
+    <div class="tiles" id="tiles"></div>
+  </section>
+
+  <section class="card">
+    <div class="sechead"><h2>Streaks</h2><div class="right">days in a row</div></div>
+    <div class="streaks" id="streaks"></div>
+  </section>
+
+  <section class="card">
+    <div class="sechead"><h2>Last 12 weeks</h2><div class="right"><b id="twelveTotal">0</b> units</div></div>
+    <div id="weeksChart"></div>
+  </section>
+
+  <section class="card">
+    <div class="sechead"><h2>Every day</h2><div class="right" id="heatMeta"></div></div>
+    <div class="heat-wrap" id="heat"></div>
+    <div class="heat-scale" id="heatScale"></div>
+  </section>
+
+  <section class="card">
+    <div class="sechead"><h2>Log</h2><div class="right"><button class="linkbtn" id="moreLog">Show more</button></div></div>
+    <div id="logTable"></div>
+  </section>
+
+  <p class="quote">Every day is an opportunity. Capacity you don't use today doesn't carry over to tomorrow.</p>
+</main>
+
+<div class="tip" id="tip"></div>
+
+<div class="sheet-bg" id="sheetBg"></div>
+<div class="sheet" id="sheet">
+  <div class="grab"></div>
+  <h2>Settings</h2>
+  <p>Your data lives in <a id="repoLink" target="_blank" rel="noopener"></a> as <code>data/volume.json</code>. Every tap is a commit.</p>
+
+  <h3>GitHub connection</h3>
+  <p id="tokenHelp">To save from this device, paste a fine-grained personal access token with <b>Contents: Read and write</b> on this repository only.</p>
+  <ol>
+    <li><a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">Create a token</a> → Repository access: <b>Only select repositories</b> → pick this repo.</li>
+    <li>Permissions → Repository permissions → <b>Contents: Read and write</b>.</li>
+    <li>Set a long expiry, generate, and paste it below. It is stored only on this device.</li>
+  </ol>
+  <div class="field"><label>Personal access token</label><input id="tokenInput" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="github_pat_…"></div>
+  <div class="field"><label>Branch</label><input id="branchInput" type="text" autocomplete="off" autocapitalize="off" spellcheck="false"></div>
+  <div class="row">
+    <button class="btn" id="saveConn">Save &amp; test</button>
+    <button class="btn ghost" id="clearToken">Remove token</button>
+  </div>
+  <div class="status" id="connStatus"></div>
+
+  <h3>Goals</h3>
+  <div id="goalEditor"></div>
+  <div class="row"><button class="btn ghost sm" id="addGoal">+ Add goal</button></div>
+
+  <h3>Week starts on</h3>
+  <div class="field"><select id="weekStart">
+    <option value="6">Saturday</option>
+    <option value="0">Sunday</option>
+    <option value="1">Monday</option>
+  </select></div>
+
+  <h3>Appearance</h3>
+  <div class="field"><select id="themeSel">
+    <option value="auto">Match system</option>
+    <option value="light">Light</option>
+    <option value="dark">Dark</option>
+  </select></div>
+
+  <div class="row" style="margin-top:18px">
+    <button class="btn" id="saveGoals">Save changes</button>
+    <button class="btn ghost" id="closeSheet">Close</button>
+  </div>
+  <div class="status" id="goalStatus"></div>
+  <p class="sub" style="margin-top:16px">Pending unsynced taps: <span id="pendingCount">0</span>. <button class="linkbtn" id="forceSync">Sync now</button></p>
+</div>
+
+<script>
+(() => {
+  // ---------- Config ----------
+  const CFG = {
+    owner: 'msh-max',
+    repo: 'Volume',
+    defaultBranch: 'claude/gracious-heisenberg-fefhs7',
+    path: 'data/volume.json',
+  };
+  const LS = {
+    token: 'volume.token', branch: 'volume.branch', cache: 'volume.cache',
+    pending: 'volume.pending', theme: 'volume.theme', logRows: 'volume.logRows',
+  };
+  const SERIES = ['', 'var(--s1)','var(--s2)','var(--s3)','var(--s4)','var(--s5)','var(--s6)','var(--s7)','var(--s8)'];
+  const SERIES_HEX_LIGHT = ['', '#2a78d6','#eb6834','#1baf7a','#eda100','#e87ba4','#008300','#6250d6','#e34948'];
+  const DARK_TEXT_SLOTS = new Set([4]); // yellow needs dark label
+
+  // ---------- Utilities ----------
+  const $ = (s, r = document) => r.querySelector(s);
+  const pad = n => String(n).padStart(2, '0');
+  const dkey = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const parseKey = k => { const [y, m, d] = k.split('-').map(Number); return new Date(y, m - 1, d); };
+  const addDays = (d, n) => { const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+  const todayKey = () => dkey(new Date());
+  const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const lsGet = (k, d) => { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } };
+  const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+  const lsDel = k => { try { localStorage.removeItem(k); } catch {} };
+  const b64encode = str => btoa(String.fromCharCode(...new TextEncoder().encode(str)));
+  const b64decode = b64 => new TextDecoder().decode(Uint8Array.from(atob(b64.replace(/\n/g, '')), c => c.charCodeAt(0)));
+
+  // ---------- State ----------
+  let data = normalize(lsGet(LS.cache, null));
+  let sha = lsGet(LS.cache + '.sha', null);
+  let pending = lsGet(LS.pending, []);
+  let token = lsGet(LS.token, '');
+  let branch = lsGet(LS.branch, CFG.defaultBranch);
+  let committing = false;
+  let commitTimer = null;
+  let logRows = lsGet(LS.logRows, 14);
+  let loadedOnce = false;
+
+  function normalize(d) {
+    const base = { version: 1, updatedAt: null, settings: { weekStart: 1 }, goals: [], log: {} };
+    if (!d || typeof d !== 'object') return base;
+    return {
+      version: 1,
+      updatedAt: d.updatedAt || null,
+      settings: Object.assign({ weekStart: 1 }, d.settings || {}),
+      goals: Array.isArray(d.goals) ? d.goals.map(g => ({ id: String(g.id), name: String(g.name || g.id), icon: g.icon || '•', color: Number(g.color) || 1 })) : [],
+      log: d.log && typeof d.log === 'object' ? d.log : {},
+    };
+  }
+
+  function applyOps(d, ops) {
+    const out = JSON.parse(JSON.stringify(d));
+    for (const op of ops) {
+      if (op.t === 'inc') {
+        const day = out.log[op.d] || (out.log[op.d] = {});
+        day[op.g] = Math.max(0, (day[op.g] || 0) + op.n);
+        if (day[op.g] === 0) delete day[op.g];
+        if (Object.keys(day).length === 0) delete out.log[op.d];
+      } else if (op.t === 'goals') {
+        out.goals = op.goals;
+      } else if (op.t === 'settings') {
+        out.settings = Object.assign({}, out.settings, op.settings);
+      }
+    }
+    return out;
+  }
+
+  function view() { return applyOps(data, pending); }
+  function count(d, key, gid) { return (d.log[key] && d.log[key][gid]) || 0; }
+  function dayTotal(d, key) { const day = d.log[key]; return day ? Object.values(day).reduce((a, b) => a + b, 0) : 0; }
+
+  // ---------- GitHub API ----------
+  const api = () => `https://api.github.com/repos/${CFG.owner}/${CFG.repo}/contents/${CFG.path}`;
+  function headers() {
+    const h = { 'Accept': 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28' };
+    if (token) h['Authorization'] = `Bearer ${token}`;
+    return h;
+  }
+  async function fetchRemote() {
+    const res = await fetch(`${api()}?ref=${encodeURIComponent(branch)}&_=${Date.now()}`, { headers: headers(), cache: 'no-store' });
+    if (res.status === 404) return { data: normalize(null), sha: null, missing: true };
+    if (!res.ok) throw new Error(await errText(res));
+    const j = await res.json();
+    return { data: normalize(JSON.parse(b64decode(j.content))), sha: j.sha };
+  }
+  async function putRemote(obj, currentSha, message) {
+    obj.updatedAt = new Date().toISOString();
+    const body = { message, content: b64encode(JSON.stringify(obj, null, 2) + '\n'), branch };
+    if (currentSha) body.sha = currentSha;
+    const res = await fetch(api(), { method: 'PUT', headers: Object.assign(headers(), { 'Content-Type': 'application/json' }), body: JSON.stringify(body) });
+    if (!res.ok) { const e = new Error(await errText(res)); e.status = res.status; throw e; }
+    const j = await res.json();
+    return j.content.sha;
+  }
+  async function errText(res) {
+    let msg = `${res.status}`;
+    try { const j = await res.json(); if (j.message) msg += ` · ${j.message}`; } catch {}
+    if (res.status === 401) msg += ' (token invalid or expired)';
+    if (res.status === 403 && !token) msg += ' (rate limited — add a token)';
+    if (res.status === 404 && token) msg += ' (check branch name and token repo access)';
+    return msg;
+  }
+
+  function describeOps(ops) {
+    const v = view();
+    const parts = [];
+    const sums = {};
+    for (const op of ops) {
+      if (op.t === 'inc') { const k = `${op.g}|${op.d}`; sums[k] = (sums[k] || 0) + op.n; }
+      else if (op.t === 'goals') parts.push('Update goals');
+      else if (op.t === 'settings') parts.push('Update settings');
+    }
+    for (const [k, n] of Object.entries(sums)) {
+      if (!n) continue;
+      const [g, d] = k.split('|');
+      const goal = v.goals.find(x => x.id === g);
+      parts.push(`${n > 0 ? '+' : ''}${n} ${goal ? goal.name : g} (${d})`);
+    }
+    return parts.length ? `Log: ${parts.join(', ')}` : 'Log: update';
+  }
+
+  // ---------- Sync ----------
+  function setSync(cls, text) {
+    const el = $('#sync'); el.className = 'sync ' + cls; $('#syncText').textContent = text;
+  }
+  function scheduleCommit(delay = 1200) {
+    clearTimeout(commitTimer);
+    commitTimer = setTimeout(commit, delay);
+  }
+  async function commit() {
+    if (committing) { scheduleCommit(800); return; }
+    if (!pending.length) return;
+    if (!token) { setSync('off', `${pending.length} unsynced · add a token in settings`); return; }
+    if (!navigator.onLine) { setSync('off', `Offline · ${pending.length} waiting`); return; }
+    committing = true;
+    setSync('busy', 'Saving to GitHub…');
+    const batch = pending.slice();
+    try {
+      let attempt = 0;
+      while (true) {
+        attempt++;
+        const remote = await fetchRemote();
+        const merged = applyOps(remote.data, batch);
+        try {
+          const newSha = await putRemote(merged, remote.sha, describeOps(batch));
+          data = merged; sha = newSha;
+          pending = pending.slice(batch.length);
+          persist();
+          break;
+        } catch (e) {
+          if ((e.status === 409 || e.status === 422) && attempt < 3) continue;
+          throw e;
+        }
+      }
+      setSync('ok', `Saved ${fmtTime(new Date())}` + (pending.length ? ` · ${pending.length} more pending` : ''));
+      if (pending.length) scheduleCommit(500);
+    } catch (e) {
+      setSync('err', `Not saved: ${e.message}`);
+      scheduleCommit(15000);
+    } finally {
+      committing = false;
+      render();
+    }
+  }
+  function persist() {
+    lsSet(LS.cache, data); lsSet(LS.cache + '.sha', sha); lsSet(LS.pending, pending);
+  }
+  async function load(showStatus = true) {
+    if (showStatus) setSync('busy', 'Loading from GitHub…');
+    try {
+      let r;
+      try { r = await fetchRemote(); }
+      catch (e) {
+        if (token) throw e;
+        // Unauthenticated fallback: the copy deployed with the site.
+        const res = await fetch(`data/volume.json?_=${Date.now()}`, { cache: 'no-store' });
+        if (!res.ok) throw e;
+        r = { data: normalize(await res.json()), sha: null, stale: true };
+      }
+      data = r.data; sha = r.sha; loadedOnce = true;
+      persist();
+      if (r.missing && token && !pending.length) {
+        // First run: create the file so the repo holds the data from day one.
+        pending.push({ t: 'settings', settings: data.settings });
+        persist();
+      }
+      if (pending.length) { render(); commit(); return; }
+      setSync(token ? 'ok' : 'off', token ? `Synced ${fmtTime(new Date())}` : (r.stale ? 'Read-only · add a token to save' : 'Read-only · add a token to save'));
+    } catch (e) {
+      setSync('err', `Load failed: ${e.message}`);
+    }
+    render();
+  }
+  const fmtTime = d => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+
+  // ---------- Actions ----------
+  function bump(gid, n) {
+    const v = view();
+    const today = todayKey();
+    if (n < 0 && count(v, today, gid) <= 0) return;
+    pending.push({ t: 'inc', d: today, g: gid, n });
+    persist();
+    if (navigator.vibrate) { try { navigator.vibrate(n > 0 ? 12 : 6); } catch {} }
+    render();
+    const el = document.querySelector(`[data-count="${gid}"]`);
+    if (el) { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); }
+    setSync('busy', token ? 'Saving…' : `${pending.length} unsynced · add a token in settings`);
+    scheduleCommit();
+  }
+
+  // ---------- Rendering ----------
+  function render() {
+    const v = view();
+    const today = new Date();
+    const tk = dkey(today);
+    $('#dateLabel').textContent = `${DAYS[today.getDay()]}, ${today.getDate()} ${MONTHS[today.getMonth()]} ${today.getFullYear()}`;
+    $('#dateLabel').dataset.k = tk;
+    $('#heroNum').textContent = dayTotal(v, tk);
+    $('#pendingCount').textContent = pending.length;
+    renderBanner(v);
+    renderGoals(v, tk);
+    renderWeek(v, today);
+    renderStreaks(v, today);
+    renderWeeks(v, today);
+    renderHeat(v, today);
+    renderTable(v, today);
+  }
+
+  function renderBanner(v) {
+    const el = $('#banner');
+    if (!token) {
+      el.innerHTML = `<div class="banner"><b>Not connected to GitHub yet.</b> Taps are kept on this device until you add a token. <br><button class="btn sm" id="bannerSetup">Connect GitHub</button></div>`;
+      $('#bannerSetup').onclick = openSheet;
+    } else if (!v.goals.length) {
+      el.innerHTML = `<div class="banner"><b>No goals yet.</b> Add your main goals in settings. <br><button class="btn sm" id="bannerGoals">Add goals</button></div>`;
+      $('#bannerGoals').onclick = openSheet;
+    } else el.innerHTML = '';
+  }
+
+  function weekStartOf(d, ws) {
+    const x = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+    const diff = (x.getDay() - ws + 7) % 7;
+    return addDays(x, -diff);
+  }
+  function rangeKeys(start, n) { const out = []; for (let i = 0; i < n; i++) out.push(dkey(addDays(start, i))); return out; }
+  function sumKeys(v, keys, gid) { return keys.reduce((a, k) => a + (gid ? count(v, k, gid) : dayTotal(v, k)), 0); }
+
+  function renderGoals(v, tk) {
+    const ws = v.settings.weekStart ?? 1;
+    const wk = rangeKeys(weekStartOf(new Date(), ws), 7);
+    const el = $('#goals');
+    if (!v.goals.length) { el.innerHTML = ''; return; }
+    const maxWeek = Math.max(1, ...v.goals.flatMap(g => wk.map(k => count(v, k, g.id))));
+    el.innerHTML = v.goals.map(g => {
+      const n = count(v, tk, g.id);
+      const weekSum = sumKeys(v, wk, g.id);
+      const total = Object.values(v.log).reduce((a, day) => a + (day[g.id] || 0), 0);
+      const streak = streakFor(v, g.id, new Date());
+      const bars = wk.map(k => {
+        const c = count(v, k, g.id);
+        const h = c ? Math.max(4, Math.round(22 * c / maxWeek)) : 2;
+        return `<i class="${c ? '' : 'zero'}${k === tk ? ' today' : ''}" style="height:${h}px" title="${k}: ${c}"></i>`;
+      }).join('');
+      return `<div class="goal" style="--gc:${SERIES[g.color] || SERIES[1]}">
+        <div class="info">
+          <div class="name"><span class="ic">${esc(g.icon)}</span><span>${esc(g.name)}</span></div>
+          <div class="today"><span class="n" data-count="${esc(g.id)}">${n}</span><span class="u">today</span></div>
+          <div class="meta"><span><b>${weekSum}</b> this week</span><span><b>${streak.n}</b> day streak</span><span><b>${total}</b> all time</span></div>
+          <div class="week">${bars}</div>
+        </div>
+        <div class="ctrl">
+          <button class="plus ${DARK_TEXT_SLOTS.has(g.color) ? 'dark-text' : ''}" data-plus="${esc(g.id)}" aria-label="Add one to ${esc(g.name)}"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>
+          <button class="minus" data-minus="${esc(g.id)}" aria-label="Remove one from ${esc(g.name)}" ${n ? '' : 'disabled'}><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+        </div>
+      </div>`;
+    }).join('');
+    el.querySelectorAll('[data-plus]').forEach(b => b.onclick = () => bump(b.dataset.plus, 1));
+    el.querySelectorAll('[data-minus]').forEach(b => b.onclick = () => bump(b.dataset.minus, -1));
+  }
+
+  function streakFor(v, gid, today) {
+    let n = 0; let d = today;
+    if (!count(v, dkey(d), gid)) d = addDays(d, -1); // today not yet logged: streak still alive from yesterday
+    while (count(v, dkey(d), gid) > 0) { n++; d = addDays(d, -1); if (n > 5000) break; }
+    const todayDone = count(v, dkey(today), gid) > 0;
+    return { n, todayDone };
+  }
+
+  function roundTop(x, y, w, h, r) {
+    r = Math.min(r, w / 2, h);
+    return `M${x},${y + h} V${y + r} Q${x},${y} ${x + r},${y} H${x + w - r} Q${x + w},${y} ${x + w},${y + r} V${y + h} Z`;
+  }
+
+  function renderWeek(v, today) {
+    const ws = v.settings.weekStart ?? 1;
+    const start = weekStartOf(today, ws);
+    const keys = rangeKeys(start, 7);
+    const prevKeys = rangeKeys(addDays(start, -7), 7);
+    const tk = dkey(today);
+    const total = sumKeys(v, keys);
+    const prev = sumKeys(v, prevKeys);
+    $('#weekTotal').textContent = total;
+    const end = addDays(start, 6);
+    $('#weekRange').textContent = `${start.getDate()} ${MONTHS[start.getMonth()]} – ${end.getDate()} ${MONTHS[end.getMonth()]}`;
+    const dEl = $('#weekDelta');
+    const diff = total - prev;
+    dEl.className = 'delta ' + (diff > 0 ? 'up' : diff < 0 ? 'down' : 'flat');
+    dEl.textContent = prev || total ? `${diff > 0 ? '+' : ''}${diff} vs last week` : '';
+
+    // Stacked columns, one per day
+    const W = 520, H = 170, padL = 26, padR = 8, padT = 18, padB = 24;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+    const slot = plotW / 7, bw = Math.min(24, slot * 0.55);
+    const max = Math.max(1, ...keys.map(k => dayTotal(v, k)));
+    const y = val => padT + plotH - (val / max) * plotH;
+    let svg = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Volume per day this week, stacked by goal">`;
+    // gridline at max
+    svg += `<line class="grid" x1="${padL}" x2="${W - padR}" y1="${y(max)}" y2="${y(max)}"/><text x="${padL - 6}" y="${y(max) + 4}" text-anchor="end">${max}</text><text x="${padL - 6}" y="${padT + plotH + 4}" text-anchor="end">0</text>`;
+    svg += `<line class="axis" x1="${padL}" x2="${W - padR}" y1="${padT + plotH}" y2="${padT + plotH}"/>`;
+    keys.forEach((k, i) => {
+      const cx = padL + slot * i + slot / 2, x = cx - bw / 2;
+      const d = parseKey(k);
+      let acc = 0;
+      const segs = v.goals.map(g => ({ g, c: count(v, k, g.id) })).filter(s => s.c > 0);
+      segs.forEach((s, si) => {
+        const y0 = y(acc + s.c), y1 = y(acc);
+        const gap = si < segs.length - 1 ? 2 : 0;
+        const h = Math.max(0, y1 - y0 - gap);
+        const isTop = si === segs.length - 1;
+        if (isTop) svg += `<path d="${roundTop(x, y0, bw, h, 4)}" fill="${SERIES[s.g.color]}"/>`;
+        else svg += `<rect x="${x}" y="${y0}" width="${bw}" height="${h}" fill="${SERIES[s.g.color]}"/>`;
+        acc += s.c;
+      });
+      const tot = dayTotal(v, k);
+      if (tot) svg += `<text class="val" x="${cx}" y="${y(tot) - 5}" text-anchor="middle">${tot}</text>`;
+      svg += `<text class="daylbl ${k === tk ? 'today' : ''}" x="${cx}" y="${H - 7}" text-anchor="middle">${DAYS[d.getDay()]}</text>`;
+      svg += `<rect class="hit" data-day="${k}" x="${padL + slot * i}" y="${padT - 10}" width="${slot}" height="${plotH + 10}"/>`;
+    });
+    svg += '</svg>';
+    $('#weekChart').innerHTML = svg;
+    attachTips($('#weekChart'), v);
+
+    $('#legend').innerHTML = v.goals.map(g => `<span><i style="background:${SERIES[g.color]}"></i>${esc(g.name)}</span>`).join('');
+
+    // Tiles
+    const daysActive = keys.filter(k => parseKey(k) <= today && dayTotal(v, k) > 0).length;
+    const daysSoFar = keys.filter(k => parseKey(k) <= today).length;
+    const allDays = Object.keys(v.log).filter(k => dayTotal(v, k) > 0);
+    const allTotal = allDays.reduce((a, k) => a + dayTotal(v, k), 0);
+    const best = allDays.reduce((b, k) => dayTotal(v, k) > (b.n || 0) ? { k, n: dayTotal(v, k) } : b, {});
+    $('#tiles').innerHTML = `
+      <div class="tile"><div class="l">Active days</div><div class="v">${daysActive}<span style="font-size:13px;color:var(--muted)">/${daysSoFar}</span></div><div class="d">this week</div></div>
+      <div class="tile"><div class="l">Best day</div><div class="v">${best.n || 0}</div><div class="d">${best.k ? fmtShort(parseKey(best.k)) : '—'}</div></div>
+      <div class="tile"><div class="l">All time</div><div class="v">${allTotal}</div><div class="d">${allDays.length} active day${allDays.length === 1 ? '' : 's'}</div></div>`;
+  }
+  const fmtShort = d => `${d.getDate()} ${MONTHS[d.getMonth()]}`;
+
+  function renderStreaks(v, today) {
+    const el = $('#streaks');
+    if (!v.goals.length) { el.innerHTML = '<div class="empty">Add goals to see streaks.</div>'; return; }
+    el.innerHTML = v.goals.map(g => {
+      const s = streakFor(v, g.id, today);
+      const best = bestStreak(v, g.id);
+      const activeDays = Object.keys(v.log).filter(k => count(v, k, g.id) > 0).length;
+      return `<div class="streak"><i class="sw" style="background:${SERIES[g.color]}"></i><span class="nm">${esc(g.icon)} ${esc(g.name)}</span>
+        <span class="st"><b>${s.n}</b><small>${s.todayDone ? 'current' : s.n ? 'at risk today' : 'start today'}</small></span>
+        <span class="st">${best}<small>best</small></span>
+        <span class="st">${activeDays}<small>active days</small></span></div>`;
+    }).join('');
+  }
+  function bestStreak(v, gid) {
+    const keys = Object.keys(v.log).filter(k => count(v, k, gid) > 0).sort();
+    let best = 0, run = 0, prev = null;
+    for (const k of keys) {
+      const d = parseKey(k);
+      run = prev && (d - prev) / 86400000 === 1 ? run + 1 : 1;
+      best = Math.max(best, run); prev = d;
+    }
+    return best;
+  }
+
+  function renderWeeks(v, today) {
+    const ws = v.settings.weekStart ?? 1;
+    const thisStart = weekStartOf(today, ws);
+    const weeks = [];
+    for (let i = 11; i >= 0; i--) { const s = addDays(thisStart, -7 * i); weeks.push({ start: s, keys: rangeKeys(s, 7) }); }
+    const totals = weeks.map(w => sumKeys(v, w.keys));
+    $('#twelveTotal').textContent = totals.reduce((a, b) => a + b, 0);
+    const W = 520, H = 150, padL = 26, padR = 8, padT = 18, padB = 22;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+    const slot = plotW / 12, bw = Math.min(24, slot * 0.6);
+    const max = Math.max(1, ...totals);
+    const y = val => padT + plotH - (val / max) * plotH;
+    let svg = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Volume per week, last 12 weeks, stacked by goal">`;
+    svg += `<line class="grid" x1="${padL}" x2="${W - padR}" y1="${y(max)}" y2="${y(max)}"/><text x="${padL - 6}" y="${y(max) + 4}" text-anchor="end">${max}</text><text x="${padL - 6}" y="${padT + plotH + 4}" text-anchor="end">0</text>`;
+    svg += `<line class="axis" x1="${padL}" x2="${W - padR}" y1="${padT + plotH}" y2="${padT + plotH}"/>`;
+    weeks.forEach((w, i) => {
+      const cx = padL + slot * i + slot / 2, x = cx - bw / 2;
+      let acc = 0;
+      const segs = v.goals.map(g => ({ g, c: sumKeys(v, w.keys, g.id) })).filter(s => s.c > 0);
+      segs.forEach((s, si) => {
+        const y0 = y(acc + s.c), y1 = y(acc);
+        const gap = si < segs.length - 1 ? 2 : 0;
+        const h = Math.max(0, y1 - y0 - gap);
+        if (si === segs.length - 1) svg += `<path d="${roundTop(x, y0, bw, h, 4)}" fill="${SERIES[s.g.color]}"/>`;
+        else svg += `<rect x="${x}" y="${y0}" width="${bw}" height="${h}" fill="${SERIES[s.g.color]}"/>`;
+        acc += s.c;
+      });
+      if (i === 11 && totals[i]) svg += `<text class="val" x="${cx}" y="${y(totals[i]) - 5}" text-anchor="middle">${totals[i]}</text>`;
+      const lbl = (i === 0 || w.start.getDate() <= 7) ? MONTHS[w.start.getMonth()] : (i === 11 ? 'now' : '');
+      if (lbl) svg += `<text x="${cx}" y="${H - 6}" text-anchor="middle">${lbl}</text>`;
+      svg += `<rect class="hit" data-week="${dkey(w.start)}" x="${padL + slot * i}" y="${padT - 10}" width="${slot}" height="${plotH + 10}"/>`;
+    });
+    svg += '</svg>';
+    $('#weeksChart').innerHTML = svg;
+    attachTips($('#weeksChart'), v);
+  }
+
+  function renderHeat(v, today) {
+    const ws = v.settings.weekStart ?? 1;
+    const WEEKS = 20;
+    const thisStart = weekStartOf(today, ws);
+    const first = addDays(thisStart, -7 * (WEEKS - 1));
+    const cell = 13, gap = 3, labelW = 26, topH = 14;
+    const W = labelW + WEEKS * (cell + gap), H = topH + 7 * (cell + gap);
+    const allKeys = [];
+    for (let w = 0; w < WEEKS; w++) for (let d = 0; d < 7; d++) allKeys.push(dkey(addDays(first, w * 7 + d)));
+    const vals = allKeys.map(k => dayTotal(v, k));
+    const maxV = Math.max(1, ...vals);
+    const level = n => n <= 0 ? 0 : Math.min(6, 1 + Math.floor((n - 1) / Math.max(1, maxV) * 5.999));
+    let svg = `<svg class="chart" viewBox="0 0 ${W} ${H}" style="width:${W}px;max-width:none" role="img" aria-label="Daily volume, last ${WEEKS} weeks">`;
+    for (let d = 0; d < 7; d++) {
+      if (d % 2 === 0) svg += `<text x="0" y="${topH + d * (cell + gap) + cell - 2}" font-size="10">${DAYS[(ws + d) % 7].slice(0, 2)}</text>`;
+    }
+    let lastMonth = -1;
+    for (let w = 0; w < WEEKS; w++) {
+      const ws0 = addDays(first, w * 7);
+      if (ws0.getMonth() !== lastMonth) { lastMonth = ws0.getMonth(); if (w === 0 || ws0.getDate() <= 7) svg += `<text x="${labelW + w * (cell + gap)}" y="10" font-size="10">${MONTHS[lastMonth]}</text>`; }
+      for (let d = 0; d < 7; d++) {
+        const idx = w * 7 + d;
+        const k = allKeys[idx];
+        const date = parseKey(k);
+        if (date > today) continue;
+        const n = vals[idx];
+        const isToday = k === dkey(today);
+        svg += `<rect class="cell" data-day="${k}" x="${labelW + w * (cell + gap)}" y="${topH + d * (cell + gap)}" width="${cell}" height="${cell}" rx="3" style="fill:var(--heat${level(n)})" ${isToday ? 'stroke="var(--ink)" stroke-width="1.5"' : ''}/>`;
+      }
+    }
+    svg += '</svg>';
+    const wrap = $('#heat');
+    wrap.innerHTML = svg;
+    wrap.scrollLeft = wrap.scrollWidth;
+    attachTips(wrap, v);
+    const activeDays = vals.filter(n => n > 0).length;
+    $('#heatMeta').innerHTML = `<b>${activeDays}</b> active of ${allKeys.filter(k => parseKey(k) <= today).length} days`;
+    $('#heatScale').innerHTML = `0 <i style="background:var(--heat0)"></i><i style="background:var(--heat1)"></i><i style="background:var(--heat2)"></i><i style="background:var(--heat3)"></i><i style="background:var(--heat4)"></i><i style="background:var(--heat5)"></i><i style="background:var(--heat6)"></i> ${maxV}`;
+  }
+
+  function renderTable(v, today) {
+    const el = $('#logTable');
+    if (!v.goals.length) { el.innerHTML = ''; return; }
+    const rows = [];
+    for (let i = 0; i < logRows; i++) {
+      const d = addDays(today, -i); const k = dkey(d);
+      rows.push(`<tr class="${i === 0 ? 'today' : ''}"><td>${i === 0 ? 'Today' : i === 1 ? 'Yesterday' : `${DAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}`}</td>${v.goals.map(g => { const c = count(v, k, g.id); return `<td class="${c ? '' : 'zero'}">${c || '·'}</td>`; }).join('')}<td><b>${dayTotal(v, k) || '·'}</b></td></tr>`);
+    }
+    el.innerHTML = `<table><thead><tr><th>Day</th>${v.goals.map(g => `<th>${esc(g.icon)} ${esc(g.name)}</th>`).join('')}<th>Total</th></tr></thead><tbody>${rows.join('')}</tbody></table>`;
+  }
+
+  // ---------- Tooltips ----------
+  function attachTips(container, v) {
+    const tip = $('#tip');
+    const show = (target, ev) => {
+      let html = '';
+      if (target.dataset.day) {
+        const k = target.dataset.day; const d = parseKey(k);
+        const rows = v.goals.map(g => ({ g, c: count(v, k, g.id) })).filter(r => r.c);
+        html = `<b>${DAYS[d.getDay()]} ${d.getDate()} ${MONTHS[d.getMonth()]}</b> · ${dayTotal(v, k)} units` +
+          (rows.length ? rows.map(r => `<div class="row"><span><i style="background:${SERIES_HEX_LIGHT[r.g.color]}"></i>${esc(r.g.name)}</span><span>${r.c}</span></div>`).join('') : '<div>nothing logged</div>');
+      } else if (target.dataset.week) {
+        const s = parseKey(target.dataset.week); const keys = rangeKeys(s, 7); const e = addDays(s, 6);
+        const rows = v.goals.map(g => ({ g, c: sumKeys(v, keys, g.id) })).filter(r => r.c);
+        html = `<b>${s.getDate()} ${MONTHS[s.getMonth()]} – ${e.getDate()} ${MONTHS[e.getMonth()]}</b> · ${sumKeys(v, keys)} units` +
+          (rows.length ? rows.map(r => `<div class="row"><span><i style="background:${SERIES_HEX_LIGHT[r.g.color]}"></i>${esc(r.g.name)}</span><span>${r.c}</span></div>`).join('') : '<div>nothing logged</div>');
+      }
+      tip.innerHTML = html; tip.classList.add('show');
+      const r = target.getBoundingClientRect();
+      const tw = tip.offsetWidth, th = tip.offsetHeight;
+      let x = r.left + r.width / 2 - tw / 2; x = Math.max(8, Math.min(window.innerWidth - tw - 8, x));
+      let y = r.top - th - 8; if (y < 8) y = r.bottom + 8;
+      tip.style.left = x + 'px'; tip.style.top = y + 'px';
+    };
+    const hide = () => tip.classList.remove('show');
+    container.querySelectorAll('.hit, .cell').forEach(h => {
+      h.addEventListener('pointerenter', e => show(h, e));
+      h.addEventListener('pointerleave', hide);
+      h.addEventListener('click', e => { e.stopPropagation(); show(h, e); clearTimeout(tip._t); tip._t = setTimeout(hide, 2500); });
+    });
+  }
+  document.addEventListener('click', () => $('#tip').classList.remove('show'));
+
+  // ---------- Settings sheet ----------
+  let editGoals = [];
+  function openSheet() {
+    const v = view();
+    editGoals = JSON.parse(JSON.stringify(v.goals));
+    $('#tokenInput').value = token;
+    $('#branchInput').value = branch;
+    $('#weekStart').value = String(v.settings.weekStart ?? 1);
+    $('#themeSel').value = lsGet(LS.theme, 'auto');
+    $('#repoLink').textContent = `${CFG.owner}/${CFG.repo}`;
+    $('#repoLink').href = `https://github.com/${CFG.owner}/${CFG.repo}/blob/${encodeURIComponent(branch)}/${CFG.path}`;
+    $('#connStatus').textContent = ''; $('#goalStatus').textContent = '';
+    renderGoalEditor();
+    $('#sheetBg').classList.add('open'); $('#sheet').classList.add('open');
+  }
+  function closeSheet() { $('#sheetBg').classList.remove('open'); $('#sheet').classList.remove('open'); }
+  function renderGoalEditor() {
+    const el = $('#goalEditor');
+    if (!editGoals.length) { el.innerHTML = '<div class="empty">No goals. Add one below.</div>'; return; }
+    el.innerHTML = editGoals.map((g, i) => `<div class="goal-edit">
+      <input class="ic" data-i="${i}" data-f="icon" value="${esc(g.icon)}" maxlength="4" aria-label="Icon">
+      <input data-i="${i}" data-f="name" value="${esc(g.name)}" placeholder="Goal name" aria-label="Name">
+      <button class="swatch sel" data-c="${i}" style="background:${SERIES[g.color]}" aria-label="Change color"></button>
+      <button class="minus" data-del="${i}" aria-label="Delete goal"><svg viewBox="0 0 24 24"><path d="M5 12h14"/></svg></button>
+    </div>`).join('');
+    el.querySelectorAll('input').forEach(inp => inp.oninput = () => { editGoals[+inp.dataset.i][inp.dataset.f] = inp.value; });
+    el.querySelectorAll('[data-c]').forEach(b => b.onclick = () => { const g = editGoals[+b.dataset.c]; g.color = (g.color % 8) + 1; b.style.background = SERIES[g.color]; });
+    el.querySelectorAll('[data-del]').forEach(b => b.onclick = () => {
+      const g = editGoals[+b.dataset.del];
+      const v = view();
+      const has = Object.values(v.log).some(day => day[g.id]);
+      if (has && !confirm(`Delete "${g.name}"? Its history stays in the data file but will no longer be shown.`)) return;
+      editGoals.splice(+b.dataset.del, 1); renderGoalEditor();
+    });
+  }
+  const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'goal';
+  $('#addGoal').onclick = () => {
+    const used = new Set(editGoals.map(g => g.color));
+    let color = 1; for (let c = 1; c <= 8; c++) if (!used.has(c)) { color = c; break; }
+    editGoals.push({ id: `goal-${Date.now().toString(36)}`, name: '', icon: '⭐', color });
+    renderGoalEditor();
+    const inputs = $('#goalEditor').querySelectorAll('input[data-f="name"]'); inputs[inputs.length - 1].focus();
+  };
+  $('#saveGoals').onclick = () => {
+    const cleaned = editGoals.filter(g => g.name.trim()).map(g => {
+      const existing = view().goals.find(x => x.id === g.id);
+      return { id: existing ? g.id : slugUnique(g.name), name: g.name.trim(), icon: (g.icon || '•').trim() || '•', color: g.color };
+    });
+    const v = view();
+    const goalsChanged = JSON.stringify(cleaned) !== JSON.stringify(v.goals);
+    const ws = Number($('#weekStart').value);
+    const wsChanged = ws !== (v.settings.weekStart ?? 1);
+    if (goalsChanged) pending.push({ t: 'goals', goals: cleaned });
+    if (wsChanged) pending.push({ t: 'settings', settings: { weekStart: ws } });
+    const theme = $('#themeSel').value; lsSet(LS.theme, theme); applyTheme();
+    persist(); render();
+    if (goalsChanged || wsChanged) { $('#goalStatus').textContent = 'Saved locally · syncing…'; scheduleCommit(200); }
+    else $('#goalStatus').textContent = 'No changes.';
+    setTimeout(closeSheet, 300);
+  };
+  function slugUnique(name) {
+    const base = slug(name); const ids = new Set(view().goals.map(g => g.id).concat(editGoals.map(g => g.id)));
+    let id = base, i = 2; while (ids.has(id)) id = `${base}-${i++}`; return id;
+  }
+  $('#saveConn').onclick = async () => {
+    token = $('#tokenInput').value.trim();
+    branch = $('#branchInput').value.trim() || CFG.defaultBranch;
+    lsSet(LS.token, token); lsSet(LS.branch, branch);
+    const st = $('#connStatus'); st.className = 'status'; st.textContent = 'Testing…';
+    try {
+      const r = await fetchRemote();
+      st.className = 'status ok';
+      st.textContent = r.missing ? 'Connected. Data file not found yet — it will be created on your first tap.' : `Connected. ${Object.keys(r.data.log).length} days of history on GitHub.`;
+      await load(false);
+    } catch (e) { st.className = 'status err'; st.textContent = `Failed: ${e.message}`; render(); }
+  };
+  $('#clearToken').onclick = () => { token = ''; lsDel(LS.token); $('#tokenInput').value = ''; $('#connStatus').textContent = 'Token removed from this device.'; render(); };
+  $('#forceSync').onclick = () => { closeSheet(); load(); };
+  $('#settingsBtn').onclick = openSheet;
+  $('#closeSheet').onclick = closeSheet;
+  $('#sheetBg').onclick = closeSheet;
+  $('#moreLog').onclick = () => { logRows = logRows >= 90 ? 14 : logRows + 28; lsSet(LS.logRows, logRows); $('#moreLog').textContent = logRows >= 90 ? 'Show less' : 'Show more'; render(); };
+
+  function applyTheme() {
+    const t = lsGet(LS.theme, 'auto');
+    if (t === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', t);
+  }
+
+  // ---------- Boot ----------
+  applyTheme();
+  render();
+  load();
+  window.addEventListener('online', () => { if (pending.length) commit(); else load(false); });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { render(); if (pending.length) commit(); else load(false); } });
+  setInterval(() => { if (dkey(new Date()) !== $('#dateLabel').dataset.k) render(); }, 60000);
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+})();
+</script>
+</body>
+</html>
