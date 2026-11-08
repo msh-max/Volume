@@ -1,5 +1,5 @@
 // Minimal service worker: network first, cache fallback so the app opens offline.
-const CACHE = 'volume-v1';
+const CACHE = 'volume-v2';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'];
 
 self.addEventListener('install', e => {
