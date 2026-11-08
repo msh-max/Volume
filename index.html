@@ -467,6 +467,7 @@
     let msg = `${res.status}`;
     try { const j = await res.json(); if (j.message) msg += ` · ${j.message}`; } catch {}
     if (res.status === 401) msg += ' (token invalid or expired)';
+    if (res.status === 403 && token) msg += ' → token lacks write access: edit it at github.com/settings/personal-access-tokens, set Contents to "Read and write" for this repo';
     if (res.status === 403 && !token) msg += ' (rate limited — add a token)';
     if (res.status === 404 && token) msg += ' (check branch name and token repo access)';
     return msg;
@@ -941,8 +942,13 @@
     const st = $('#connStatus'); st.className = 'status'; st.textContent = 'Testing…';
     try {
       const r = await fetchRemote();
-      st.className = 'status ok';
-      st.textContent = r.missing ? 'Connected. Data file not found yet — it will be created on your first tap.' : `Connected. ${Object.keys(r.data.log).length} days of history on GitHub.`;
+      const repoRes = await fetch(`https://api.github.com/repos/${CFG.owner}/${CFG.repo}`, { headers: headers(), cache: 'no-store' });
+      const repoJ = repoRes.ok ? await repoRes.json() : null;
+      const canWrite = !!(repoJ && repoJ.permissions && repoJ.permissions.push);
+      st.className = canWrite ? 'status ok' : 'status err';
+      st.textContent = !canWrite
+        ? 'Token can read but NOT write. Edit the token at github.com/settings/personal-access-tokens → Repository permissions → Contents: Read and write.'
+        : r.missing ? 'Connected with write access. Data file will be created on your first tap.' : `Connected with write access. ${Object.keys(r.data.log).length} days of history on GitHub.`;
       await load(false);
     } catch (e) { st.className = 'status err'; st.textContent = `Failed: ${e.message}`; render(); }
   };
