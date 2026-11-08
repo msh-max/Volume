@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-08T13:33:19.251Z",
+  "updatedAt": "2026-11-08T17:48:49.149Z",
   "settings": {
     "weekStart": 0
   },
@@ -26,7 +26,8 @@
   ],
   "log": {
     "2026-11-08": {
-      "work": 2
+      "work": 2,
+      "workout": 1
     }
   }
 }
