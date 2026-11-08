@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-08T03:27:36.407Z",
+  "updatedAt": "2026-11-08T03:27:41.384Z",
   "settings": {
     "weekStart": 6
   },
@@ -24,5 +24,9 @@
       "color": 3
     }
   ],
-  "log": {}
+  "log": {
+    "2026-11-08": {
+      "workout": 1
+    }
+  }
 }
