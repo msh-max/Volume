@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-19T08:04:04.928Z",
+  "updatedAt": "2026-11-19T19:26:02.209Z",
   "settings": {
     "weekStart": 0
   },
@@ -69,7 +69,8 @@
       "workout": 1
     },
     "2026-11-19": {
-      "workout": 1
+      "workout": 1,
+      "social": 1
     }
   }
 }
